@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Módulo 6 – Análise de Mercado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-correct {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-wrong {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-default {
+      background-color: #007BFF;
+      color: white;
+    }
+    #tempo {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #resultado {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Módulo 6</h1>
+
+    <div id="quiz">
+      <h2 id="pergunta"></h2>
+      <div id="alternativas"></div>
+      <p id="tempo">Tempo restante: <span id="segundos">15</span>s</p>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const perguntas = [
+      {
+        pergunta: "O que representa o índice VIX?",
+        alternativas: [
+          "Taxa de desemprego",
+          "Inflação esperada",
+          "Volatilidade e medo no mercado",
+          "PIB trimestral"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "Qual é a vantagem de combinar múltiplos timeframes na análise de mercado?",
+        alternativas: [
+          "Evitar decisões impulsivas",
+          "Ver apenas parte do quebra-cabeça",
+          "Obter uma visão mais completa e estratégica",
+          "Focar apenas em curto prazo"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "O que significa 'Put/Call Ratio' acima de 1?",
+        alternativas: [
+          "Mais pessoas estão comprando ações",
+          "Há mais confiança no mercado",
+          "Vendas superam compras, sinalizando cautela",
+          "Mercado está otimista"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "Por que devemos ser contrários ao sentimento dominante do mercado?",
+        alternativas: [
+          "Para seguir a multidão",
+          "Porque o mercado sempre tem razão",
+          "Para aproveitar oportunidades ignoradas pela maioria",
+          "Para copiar os grandes fundos"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "O que é um dashboard semanal de mercado?",
+        alternativas: [
+          "Uma planilha aleatória",
+          "Um painel com indicadores macroeconômicos e técnicos importantes",
+          "Um gráfico de inflação",
+          "Uma lista de notícias"
+        ],
+        respostaCorreta: 1,
+      },
+      {
+        pergunta: "Qual desses NÃO é um indicador macroeconômico principal?",
+        alternativas: [
+          "Selic",
+          "IPCA",
+          "ROE",
+          "PIB Trimestral"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "O que indica uma alta no índice VIX acima de 30?",
+        alternativas: [
+          "Confiança dos investidores",
+          "Excesso de otimismo",
+          "Possível momento de compra contrária",
+          "Estabilidade no mercado"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "Como você deve reagir quando há excesso de otimismo generalizado?",
+        alternativas: [
+          "Comprar mais ativos",
+          "Ser indiferente",
+          "Preparar-se para correção — vender parcialmente",
+          "Ignorar as tendências"
+        ],
+        respostaCorreta: 2,
+      },
+      {
+        pergunta: "O que significa análise multi-timeframe?",
+        alternativas: [
+          "Analisar apenas um período (ex: diário)",
+          "Combinar análises de diferentes escalas de tempo (horária, diária, mensal)",
+          "Usar somente dados históricos",
+          "Focar apenas em previsões futuras"
+        ],
+        respostaCorreta: 1,
+      },
+      {
+        pergunta: "Por que é importante entender ciclos de mercado?",
+        alternativas: [
+          "Para entrar e sair com precisão",
+          "Para evitar investir totalmente",
+          "Para identificar momentos de entrada/saída estratégica",
+          "Para seguir apenas gráficos"
+        ],
+        respostaCorreta: 2,
+      }
+    ];
+
+    let indiceAtual = 0;
+    let pontuacao = 0;
+    let tempoRestante = 15;
+    let temporizador;
+
+    const perguntaEl = document.getElementById("pergunta");
+    const alternativasEl = document.getElementById("alternativas");
+    const segundosEl = document.getElementById("segundos");
+    const resultadoEl = document.getElementById("resultado");
+
+    function mostrarPergunta() {
+      clearInterval(temporizador);
+      tempoRestante = 15;
+      segundosEl.textContent = tempoRestante;
+
+      if (indiceAtual >= perguntas.length) {
+        finalizarQuiz();
+        return;
+      }
+
+      const q = perguntas[indiceAtual];
+      perguntaEl.textContent = q.pergunta;
+      alternativasEl.innerHTML = "";
+
+      q.alternativas.forEach((alt, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = alt;
+        btn.className = "btn-default";
+        btn.onclick = () => responder(index);
+        alternativasEl.appendChild(btn);
+      });
+
+      iniciarTemporizador();
+    }
+
+    function iniciarTemporizador() {
+      temporizador = setInterval(() => {
+        tempoRestante--;
+        segundosEl.textContent = tempoRestante;
+        if (tempoRestante <= 0) {
+          clearInterval(temporizador);
+          alert("Tempo esgotado!");
+          desabilitarBotoes();
+          setTimeout(() => {
+            indiceAtual++;
+            mostrarPergunta();
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    function responder(indice) {
+      clearInterval(temporizador);
+      desabilitarBotoes();
+
+      const q = perguntas[indiceAtual];
+      const botoes = alternativasEl.querySelectorAll("button");
+
+      if (indice === q.respostaCorreta) {
+        botoes[indice].classList.remove("btn-default");
+        botoes[indice].classList.add("btn-correct");
+        pontuacao++;
+      } else {
+        botoes[indice].classList.remove("btn-default");
+        botoes[indice].classList.add("btn-wrong");
+        botoes[q.respostaCorreta].classList.add("btn-correct");
+      }
+
+      setTimeout(() => {
+        indiceAtual++;
+        mostrarPergunta();
+      }, 1500);
+    }
+
+    function desabilitarBotoes() {
+      const botoes = alternativasEl.querySelectorAll("button");
+      botoes.forEach(btn => btn.disabled = true);
+    }
+
+    function finalizarQuiz() {
+      const percentual = Math.round((pontuacao / perguntas.length) * 100);
+      document.getElementById("quiz").style.display = "none";
+      resultadoEl.innerHTML = `
+        <h2>Fim do Quiz!</h2>
+        <p>Você acertou <strong>${pontuacao}</strong> de ${perguntas.length} perguntas.</p>
+        <p><strong>Percentual:</strong> ${percentual}%</p>
+        <button onclick="location.reload()" style="margin-top: 20px;">Refazer</button>
+      `;
+    }
+
+    function init() {
+      mostrarPergunta();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
